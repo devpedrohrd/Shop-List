@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  type      UserType?     @default(USER)
+  createdAt DateTime @default(now())
+}
+
+enum ProductCategory {
+  hortifruti
+  padaria
+  limpeza
+  carne
+  casa
+  doce
+  laticinio
+  bebidas
+  fruits
+  massa
+  outros
+}
+
+model Product {
+  id       String          @id @default(cuid())
+  name     String
+  image    String
+  category ProductCategory
+}
+
+model ShoppingList {
+  id        String   @id @default(cuid())
+  userId    String
+  items     Json
+  createdAt DateTime @default(now())
+}
