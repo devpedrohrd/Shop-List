@@ -107,23 +107,27 @@ export class AuthService {
     })
     if (!user) throw new NotFoundException('USER_NOT_FOUND')
 
-    const token = this.jwtService.sign(
-      { id: user.id, email: user.email },
-      {
-        secret: process.env.JWT_RESET_PASSWORD_SECRET,
-        expiresIn: process.env.JWT_RESET_PASSWORD_EXPIRATION_15_MINUTES,
-      },
-    )
-
-    const resetLink = `${process.env.APP_URL}/auth/reset-password?token=${token}`
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
 
     await this.emailService.send({
       to: user.email,
-      subject: 'Redefinição de senha',
-      html: `<p>Clique no link para redefinir sua senha: <a href="${resetLink}">${resetLink}</a></p>`,
+      subject: 'Redefinição de Senha - Smart List',
+      html: `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; background: #fafbfc;">
+        <h2 style="color: #2d3748;">Olá, ${user.name || 'usuário'}!</h2>
+        <p>Recebemos uma solicitação para redefinir a senha da sua conta no <strong>Smart List</strong>.</p>
+        <p>Para continuar, utilize o código abaixo:</p>
+        <div style="text-align: center; margin: 32px 0;">
+        <span style="display: inline-block; font-size: 2rem; letter-spacing: 8px; background: #f1f5f9; padding: 16px 32px; border-radius: 6px; color: #2563eb; font-weight: bold;">
+          ${code}
+        </span>
+        </div>
+        <p>Se você não solicitou a redefinição de senha, ignore este e-mail. Seu acesso permanecerá seguro.</p>
+        <hr style="margin: 32px 0; border: none; border-top: 1px solid #e0e0e0;">
+        <p style="font-size: 0.95em; color: #6b7280;">Atenciosamente,<br>Equipe Smart List</p>
+      </div>
+      `,
     })
-
-    return `Email sended to ${user.email} with reset instructions`
   }
 
   async resetPassword({ token, newPassword }: ResetPasswordDto) {
