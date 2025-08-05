@@ -129,11 +129,48 @@ export class ListService {
   }
 
   async getShoppingList(userId: string) {
-    return this.prisma.shoppingList.findMany({
+    const lists = await this.prisma.shoppingList.findMany({
       where: {
         userId,
       },
     })
+
+    // Para cada lista, buscar detalhes dos produtos
+    const listsWithProducts = await Promise.all(
+      lists.map(async (list) => {
+        let items: Array<{ idProduct: string; quantity: number }> = []
+
+        if (Array.isArray(list.items)) {
+          items = list.items as Array<{ idProduct: string; quantity: number }>
+        } else if (typeof list.items === 'string') {
+          try {
+            const parsed = JSON.parse(list.items)
+            if (Array.isArray(parsed)) {
+              items = parsed
+            }
+          } catch {
+            items = []
+          }
+        }
+
+        // Buscar detalhes dos produtos
+        const productIds = items.map((item) => item.idProduct)
+        const products = productIds.length
+          ? await this.prisma.product.findMany({
+            where: { id: { in: productIds } },
+          })
+          : []
+
+        return {
+          ...list,
+          items,
+          Product: products,
+        }
+      })
+    )
+
+    return listsWithProducts
+
   }
 
   async removeProductFromList(

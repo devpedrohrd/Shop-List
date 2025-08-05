@@ -41,6 +41,8 @@ model Product {
   name     String
   image    String
   category ProductCategory
+
+  ShoppingList ShoppingList[] @relation("ShoppingListProducts")
 }
 
 model ShoppingList {
@@ -48,4 +50,6 @@ model ShoppingList {
   userId    String
   items     Json
   createdAt DateTime @default(now())
+
+  Product Product[] @relation("ShoppingListProducts")
 }
