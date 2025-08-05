@@ -42,7 +42,14 @@ export class ResetPasswordDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'The reset token for password reset',
-    example: 'reset-token-123',
+    example: '123456',
   })
   token: string
+  @ApiProperty({
+    description: 'The email address of the user',
+    example: 'user@example.com',
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string
 }

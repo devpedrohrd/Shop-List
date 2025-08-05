@@ -11,6 +11,7 @@ import { compare, hash } from 'bcrypt'
 import { JwtService } from '@nestjs/jwt'
 import { LoginUserDto, ResetPasswordDto, SendEmail } from './dto/login-user.dto'
 import { EmailService } from '../email/email.service'
+import { RedisService } from 'src/config/Redis/redis.service'
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
+    private readonly redisService: RedisService
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -109,6 +111,8 @@ export class AuthService {
 
     const code = Math.floor(100000 + Math.random() * 900000).toString()
 
+    await this.redisService.set(`reset-password-code:${code}`, code, 15 * 60)
+
     await this.emailService.send({
       to: user.email,
       subject: 'Redefinição de Senha - Smart List',
@@ -130,18 +134,17 @@ export class AuthService {
     })
   }
 
-  async resetPassword({ token, newPassword }: ResetPasswordDto) {
-    let payload: any
-    try {
-      payload = this.jwtService.verify(token, {
-        secret: process.env.JWT_RESET_PASSWORD_SECRET,
-      })
-    } catch (error) {
-      throw new BadRequestException('Invalid or expired token')
+  async resetPassword({ token, newPassword, email }: ResetPasswordDto) {
+    const storedToken = await this.redisService.get(`reset-password-code:${token}`)
+
+    if (storedToken !== token) {
+      throw new BadRequestException('Invalid or expired reset token')
     }
 
+    await this.redisService.delete(`reset-password-code:${token}`)
+
     const user = await this.prisma.user.findUnique({
-      where: { id: payload.id },
+      where: { email },
     })
 
     if (!user) {
