@@ -22,6 +22,10 @@ export class LoginUserDto {
 export class SendEmail {
   @IsEmail()
   @IsNotEmpty()
+  @ApiProperty({
+    description: 'The email address to send the reset password link',
+    example: 'user@example.com',
+  })
   email: string
 }
 
