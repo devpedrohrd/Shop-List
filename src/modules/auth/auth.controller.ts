@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, Get } from '@nestjs/common'
+import { Controller, Post, Body, Req, Get, Patch } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { CreateUserDto, UpdateUserDTO } from './dto/create-user.dto'
 import { LoginUserDto, ResetPasswordDto, SendEmail } from './dto/login-user.dto'
@@ -106,7 +106,7 @@ export class AuthController {
     return this.authService.getUserInfo(req['user'].id)
   }
 
-  @Post('updateUserInfo')
+  @Patch('updateUserInfo')
   @ApiResponse({
     status: 200,
     description: 'User info updated successfully',
