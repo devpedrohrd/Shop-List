@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { PrismaService } from 'src/config/Database/Prisma.service'
-import { CreateUserDto, UserRole } from './dto/create-user.dto'
+import { CreateUserDto, UpdateUserDTO, UserRole } from './dto/create-user.dto'
 import { compare, hash } from 'bcrypt'
 import { JwtService } from '@nestjs/jwt'
 import { LoginUserDto, ResetPasswordDto, SendEmail } from './dto/login-user.dto'
@@ -19,7 +19,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -135,7 +135,9 @@ export class AuthService {
   }
 
   async resetPassword({ token, newPassword, email }: ResetPasswordDto) {
-    const storedToken = await this.redisService.get(`reset-password-code:${token}`)
+    const storedToken = await this.redisService.get(
+      `reset-password-code:${token}`,
+    )
 
     if (storedToken !== token) {
       throw new BadRequestException('Invalid or expired reset token')
@@ -159,5 +161,40 @@ export class AuthService {
     })
 
     return 'Password reset successfully'
+  }
+
+  async getUserInfo(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+      },
+    })
+
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    return user
+  }
+
+  async updateUserInfo(userId: string, updateData: UpdateUserDTO) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    })
+
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    })
+
+    return 'User info updated successfully'
   }
 }

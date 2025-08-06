@@ -19,6 +19,12 @@ import { RedisService } from 'src/config/Redis/redis.service'
     EmailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, JwtService, EmailService, RedisService],
+  providers: [
+    AuthService,
+    PrismaService,
+    JwtService,
+    EmailService,
+    RedisService,
+  ],
 })
 export class AuthModule {}

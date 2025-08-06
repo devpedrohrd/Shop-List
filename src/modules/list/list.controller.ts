@@ -86,9 +86,12 @@ export class ListController {
   })
   async removeProductFromList(
     @Body() removeProducts: UpdateShopListDto,
-    @Req() req: Request
+    @Req() req: Request,
   ) {
-    return this.listService.removeProductFromList(req['user'].id, removeProducts)
+    return this.listService.removeProductFromList(
+      req['user'].id,
+      removeProducts,
+    )
   }
 
   @Get('my-lists')

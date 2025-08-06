@@ -1,6 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common'
+import { Controller, Post, Body, Req, Get } from '@nestjs/common'
 import { AuthService } from './auth.service'
-import { CreateUserDto } from './dto/create-user.dto'
+import { CreateUserDto, UpdateUserDTO } from './dto/create-user.dto'
 import { LoginUserDto, ResetPasswordDto, SendEmail } from './dto/login-user.dto'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 
@@ -87,5 +87,39 @@ export class AuthController {
   })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto)
+  }
+
+  @Get('userInfo')
+  @ApiResponse({
+    status: 200,
+    description: 'User info retrieved successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  async userInfo(@Req() req: Request) {
+    return this.authService.getUserInfo(req['user'].id)
+  }
+
+  @Post('updateUserInfo')
+  @ApiResponse({
+    status: 200,
+    description: 'User info updated successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  async updateUserInfo(@Req() req: Request, @Body() updateData: UpdateUserDTO) {
+    return this.authService.updateUserInfo(req['user'].id, updateData)
   }
 }

@@ -36,7 +36,7 @@ export class ListService {
       existingList = await this.prisma.shoppingList.findUnique({
         where: {
           id: listId,
-          userId
+          userId,
         },
       })
 
@@ -157,8 +157,8 @@ export class ListService {
         const productIds = items.map((item) => item.idProduct)
         const products = productIds.length
           ? await this.prisma.product.findMany({
-            where: { id: { in: productIds } },
-          })
+              where: { id: { in: productIds } },
+            })
           : []
 
         return {
@@ -166,11 +166,10 @@ export class ListService {
           items,
           Product: products,
         }
-      })
+      }),
     )
 
     return listsWithProducts
-
   }
 
   async removeProductFromList(
