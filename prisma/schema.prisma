@@ -37,7 +37,7 @@ enum ProductCategory {
 }
 
 model Product {
-  id       String          @id @default(cuid())
+  id       String          @id @default(uuid())
   name     String
   image    String
   category ProductCategory
@@ -47,6 +47,7 @@ model Product {
 
 model ShoppingList {
   id        String   @id @default(cuid())
+  name     String
   userId    String
   items     Json
   createdAt DateTime @default(now())

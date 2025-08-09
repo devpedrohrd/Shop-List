@@ -27,6 +27,7 @@ export class ListService {
 
     let existingList: {
       id: string
+      name: string
       items: any
       userId: string
       createdAt: Date
@@ -122,6 +123,7 @@ export class ListService {
       data: {
         userId,
         items: newItemsForCreation,
+        name: createShopListDto.name,
       },
     })
 

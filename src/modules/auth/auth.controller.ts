@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Req, Get, Patch } from '@nestjs/common'
+import { Controller, Post, Body, Req, Get, Patch, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { CreateUserDto, UpdateUserDTO } from './dto/create-user.dto'
 import { LoginUserDto, ResetPasswordDto, SendEmail } from './dto/login-user.dto'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { JwtAuthGuard } from './guard/jwt.guard'
 
 @Controller('auth')
 @ApiTags('auth')
@@ -90,6 +91,7 @@ export class AuthController {
   }
 
   @Get('userInfo')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
     description: 'User info retrieved successfully',
@@ -107,6 +109,7 @@ export class AuthController {
   }
 
   @Patch('updateUserInfo')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
     description: 'User info updated successfully',

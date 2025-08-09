@@ -20,6 +20,14 @@ export class CreateShopListDto {
   })
   id: string
   @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Name of the shopping list',
+    example: 'Weekly Groceries',
+    required: true,
+  })
+  name: string
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'User ID associated with the shopping list',
